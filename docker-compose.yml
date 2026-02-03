@@ -1,0 +1,58 @@
+# Bartending V2 - Database Docker Compose
+# Run with: docker-compose up -d
+
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bartending_db
+    restart: unless-stopped
+
+    # Environment variables (use .env file in production)
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bartender}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Database password required}
+      POSTGRES_DB: ${POSTGRES_DB:-bartending}
+
+    # Port mapping
+    ports:
+      - "${DB_PORT:-5432}:5432"
+
+    # Persistent storage
+    volumes:
+      - bartending_db_data:/var/lib/postgresql/data
+
+    # Health check
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bartender} -d ${POSTGRES_DB:-bartending}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # Resource limits (optimized for Raspberry Pi 4)
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Named volume for data persistence
+volumes:
+  bartending_db_data:
+    driver: local
+
+# Network for communication with backend
+networks:
+  default:
+    name: bartending_network
+    driver: bridge

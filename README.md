@@ -8,7 +8,7 @@ PostgreSQL database schema and seed data for the Tipsy cocktail ordering applica
 - **Migration-ready** - Organized SQL files for schema and data
 - **Full-text Search** - French language text search on cocktail names
 - **Auto-timestamps** - Triggers for automatic `updated_at` management
-- **Useful Views** - Pre-built views for common queries
+- **31 Pre-seeded Cocktails** - Ready-to-use cocktail data
 
 ## Schema Overview
 
@@ -42,7 +42,7 @@ Bartending_DB/
 ├── init/                        # Initialization scripts (run in order)
 │   ├── 01-schema.sql           # Core tables, indexes, triggers
 │   ├── 02-users.sql            # User authentication schema
-│   ├── 02-seed-cocktails.sql   # Cocktail seed data
+│   ├── 02-seed-cocktails.sql   # 31 cocktails seed data
 │   └── 03-ingredients.sql      # Ingredients reference data
 ├── migrations/                  # Future migrations
 ├── .env.example                # Environment template
@@ -62,7 +62,7 @@ Bartending_DB/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/Bartending_DB.git
+   git clone https://github.com/AlexandreFrancony/Bartending_DB.git
    cd Bartending_DB
    ```
 
@@ -74,7 +74,7 @@ Bartending_DB/
 
 3. **Start the database**
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 The database will be available at `localhost:5432` with the configured credentials.
@@ -109,7 +109,7 @@ The database will be available at `localhost:5432` with the configured credentia
 
 ```sql
 CREATE TABLE cocktails (
-    id VARCHAR(100) PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,     -- kebab-case (e.g., "mojito")
     name VARCHAR(255) NOT NULL,
     image VARCHAR(255),
     ingredients JSONB NOT NULL DEFAULT '[]',
@@ -122,8 +122,9 @@ CREATE TABLE cocktails (
 **Ingredients JSONB Format:**
 ```json
 [
-  { "name": "Gin", "quantity": "45ml", "category": "Alcool" },
-  { "name": "Citron", "quantity": "30ml", "category": "Fruits" }
+  { "name": "Rhum", "quantity": "45ml", "category": "Alcool" },
+  { "name": "Citron vert", "quantity": "30ml", "category": "Fruits" },
+  { "name": "Menthe", "quantity": "6 feuilles", "category": "Garniture" }
 ]
 ```
 
@@ -136,6 +137,8 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     role user_role NOT NULL DEFAULT 'user',
+    reset_token VARCHAR(255),
+    reset_token_expiry TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE,
     updated_at TIMESTAMP WITH TIME ZONE
 );
@@ -174,23 +177,12 @@ AND ingredients @> '[{"category": "Alcool"}]';
 SELECT * FROM orders_detail WHERE user_id = 1 ORDER BY order_time DESC;
 ```
 
-## Adding Migrations
-
-1. Create a new file in `migrations/` with incremental numbering:
-   ```
-   migrations/001-add-favorites.sql
-   ```
-
-2. Apply the migration:
-   ```bash
-   psql -d bartending -f migrations/001-add-favorites.sql
-   ```
-
 ## Related Repositories
 
-- [Bartending_Front](https://github.com/yourusername/Bartending_Front) - React frontend
-- [Bartending_Back](https://github.com/yourusername/Bartending_Back) - Express API
-- [Bartending_Deploy](https://github.com/yourusername/Bartending_Deploy) - Docker deployment
+- [Bartending_Front](https://github.com/AlexandreFrancony/Bartending_Front) - React frontend
+- [Bartending_Back](https://github.com/AlexandreFrancony/Bartending_Back) - Express API
+- [Bartending_Deploy](https://github.com/AlexandreFrancony/Bartending_Deploy) - Docker deployment
+- [Infra](https://github.com/AlexandreFrancony/Infra) - Central reverse proxy
 
 ## License
 
